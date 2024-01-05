@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -15,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -39,6 +42,7 @@ class PhotoFragment : Fragment(R.layout.fragment_photo) {
     private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private var camera: Camera? = null
+    private var cameraSelector: CameraSelector? = null
 
     private lateinit var safeContext: Context
 
@@ -87,10 +91,21 @@ class PhotoFragment : Fragment(R.layout.fragment_photo) {
 
         binding.imageCaptureButton.setOnClickListener {
             takePhoto()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                animateFlash()
+            }
         }
         binding.videoSelectButton.setOnClickListener {
             val action = PhotoFragmentDirections.actionPhotoFragmentToVideoFragment()
             this.findNavController().navigate(action)
+        }
+        binding.changeButton.setOnClickListener {
+            cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                CameraSelector.DEFAULT_FRONT_CAMERA
+            } else {
+                CameraSelector.DEFAULT_BACK_CAMERA
+            }
+            startCamera()
         }
 
         Log.d(TAG, "onViewCreated")
@@ -118,11 +133,14 @@ class PhotoFragment : Fragment(R.layout.fragment_photo) {
 
             imageCapture = ImageCapture.Builder().build()
 
-            val cameraSelector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+            if (cameraSelector == null){
+                cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            }
 
             try {
                 cameraProvider.unbindAll()
-                camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+                camera = cameraProvider.bindToLifecycle(this,
+                    cameraSelector!!, preview, imageCapture)
                 preview?.setSurfaceProvider(binding.viewFinder.surfaceProvider)
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
@@ -132,7 +150,6 @@ class PhotoFragment : Fragment(R.layout.fragment_photo) {
     }
 
     private fun takePhoto() {
-        Toast.makeText(requireActivity().baseContext, "msg", Toast.LENGTH_SHORT).show()
         val imageCapture = imageCapture ?: return
 
         val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
@@ -160,7 +177,7 @@ class PhotoFragment : Fragment(R.layout.fragment_photo) {
                 override fun
                         onImageSaved(output: ImageCapture.OutputFileResults){
                     val msg = "Photo capture succeeded: ${output.savedUri}"
-                    Toast.makeText(requireActivity().baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
                 }
             }
@@ -174,6 +191,16 @@ class PhotoFragment : Fragment(R.layout.fragment_photo) {
 
     private fun requestPermissions() {
         activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun animateFlash() {
+        binding.root.postDelayed({
+            binding.root.foreground = ColorDrawable(Color.WHITE)
+            binding.root.postDelayed({
+                binding.root.foreground = null
+            }, 50)
+        }, 100)
     }
 
     companion object {

@@ -49,8 +49,8 @@ class VideoFragment : Fragment(R.layout.fragment_video) {
     private val binding get() = _binding!!
 
     private var preview: Preview? = null
-    private var imageCapture: ImageCapture? = null
     private var camera: Camera? = null
+    private var cameraSelector: CameraSelector? = null
 
     private var videoCapture: VideoCapture<Recorder>? = null
     private var recording: Recording? = null
@@ -107,6 +107,14 @@ class VideoFragment : Fragment(R.layout.fragment_video) {
             val action = VideoFragmentDirections.actionVideoFragmentToPhotoFragment()
             this.findNavController().navigate(action)
         }
+        binding.changeButton.setOnClickListener {
+            cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                CameraSelector.DEFAULT_FRONT_CAMERA
+            } else {
+                CameraSelector.DEFAULT_BACK_CAMERA
+            }
+            startCamera()
+        }
 
         Log.d(TAG, "onViewCreated")
         if (allPermissionsGranted()) {
@@ -138,11 +146,14 @@ class VideoFragment : Fragment(R.layout.fragment_video) {
 
             videoCapture = VideoCapture.withOutput(recorder)
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            if (cameraSelector == null){
+                cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            }
 
             try {
                 cameraProvider.unbindAll()
-                camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, videoCapture)
+                camera = cameraProvider.bindToLifecycle(this,
+                    cameraSelector!!, preview, videoCapture)
                 preview?.setSurfaceProvider(binding.viewFinder.surfaceProvider)
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
@@ -199,7 +210,7 @@ class VideoFragment : Fragment(R.layout.fragment_video) {
                         if (!recordEvent.hasError()) {
                             val msg = "Video capture succeeded: " +
                                     "${recordEvent.outputResults.outputUri}"
-                            Toast.makeText(safeContext, msg, Toast.LENGTH_SHORT)
+                            Toast.makeText(requireActivity(), msg, Toast.LENGTH_SHORT)
                                 .show()
                             Log.d(TAG, msg)
                         } else {
