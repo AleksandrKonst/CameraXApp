@@ -81,4 +81,5 @@ dependencies {
 
     // Jetpack Compose Integration
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("com.github.bumptech.glide:glide:4.11.0")
 }

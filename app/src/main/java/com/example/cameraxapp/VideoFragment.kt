@@ -115,6 +115,10 @@ class VideoFragment : Fragment(R.layout.fragment_video) {
             }
             startCamera()
         }
+        binding.gallery.setOnClickListener {
+            val action = VideoFragmentDirections.actionVideoFragmentToGalleryFragment()
+            this.findNavController().navigate(action)
+        }
 
         Log.d(TAG, "onViewCreated")
         if (allPermissionsGranted()) {
@@ -129,6 +133,12 @@ class VideoFragment : Fragment(R.layout.fragment_video) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        val curRecording = recording
+        if (curRecording != null) {
+            curRecording.stop()
+            recording = null
+            return
+        }
         _binding = null
     }
 

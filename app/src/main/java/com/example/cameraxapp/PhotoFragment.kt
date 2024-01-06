@@ -24,9 +24,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.Recorder
-import androidx.camera.video.Recording
-import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.example.cameraxapp.databinding.FragmentPhotoBinding
@@ -106,6 +103,10 @@ class PhotoFragment : Fragment(R.layout.fragment_photo) {
                 CameraSelector.DEFAULT_BACK_CAMERA
             }
             startCamera()
+        }
+        binding.gallery.setOnClickListener {
+            val action = PhotoFragmentDirections.actionPhotoFragmentToGalleryFragment()
+            this.findNavController().navigate(action)
         }
 
         Log.d(TAG, "onViewCreated")
