@@ -50,6 +50,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.media3:media3-exoplayer-hls:1.2.0")
     val camerax_version = "1.3.1"
     val nav_version = "2.7.5"
 
@@ -82,4 +83,8 @@ dependencies {
     // Jetpack Compose Integration
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("com.github.bumptech.glide:glide:4.11.0")
+
+    implementation("androidx.media3:media3-exoplayer:1.2.0")
+    implementation("androidx.media3:media3-ui:1.2.0")
+    implementation("androidx.media3:media3-common:1.2.0")
 }

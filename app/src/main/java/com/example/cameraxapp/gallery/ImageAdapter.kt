@@ -30,15 +30,22 @@ class ImageAdapter(private var context: Context, private var imagesList: ArrayLi
                 return videoExtensions.any { lowerCaseFileName.endsWith(it) }
             }
 
-            binding.rowImage.setOnClickListener {
-                val intent = Intent(context, ImageFullActivity::class.java)
-                intent.putExtra("path", image.imagePath)
-                intent.putExtra("name", image.imageName)
-                context.startActivity(intent)
-            }
-
             if(isVideoFile(image.imageName.toString())){
                 binding.rowImagePlay.visibility = View.VISIBLE
+
+                binding.rowImage.setOnClickListener {
+                    val intent = Intent(context, VideoFullActivity::class.java)
+                    intent.putExtra("path", image.imagePath)
+                    context.startActivity(intent)
+                }
+            }
+            else {
+                binding.rowImage.setOnClickListener {
+                    val intent = Intent(context, ImageFullActivity::class.java)
+                    intent.putExtra("path", image.imagePath)
+                    intent.putExtra("name", image.imageName)
+                    context.startActivity(intent)
+                }
             }
         }
     }
