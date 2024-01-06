@@ -24,11 +24,21 @@ class ImageAdapter(private var context: Context, private var imagesList: ArrayLi
                 .apply(RequestOptions().centerCrop())
                 .into(binding.rowImage)
 
+            fun isVideoFile(fileName: String): Boolean {
+                val videoExtensions = arrayOf(".mp4", ".avi", ".mov", ".mkv")
+                val lowerCaseFileName = fileName.toLowerCase()
+                return videoExtensions.any { lowerCaseFileName.endsWith(it) }
+            }
+
             binding.rowImage.setOnClickListener {
                 val intent = Intent(context, ImageFullActivity::class.java)
                 intent.putExtra("path", image.imagePath)
                 intent.putExtra("name", image.imageName)
                 context.startActivity(intent)
+            }
+
+            if(isVideoFile(image.imageName.toString())){
+                binding.rowImagePlay.visibility = View.VISIBLE
             }
         }
     }
